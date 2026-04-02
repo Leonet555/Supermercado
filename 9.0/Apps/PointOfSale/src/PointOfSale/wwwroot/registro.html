@@ -38,41 +38,42 @@
     <input id="name" type="text" placeholder="Nome completo" />
     <input id="email" type="email" placeholder="E-mail" />
     <input id="password" type="password" placeholder="Senha" />
-    <button onclick="doRegister()">Registrar</button>
+    <button type="button" onclick="doRegister()">Registrar</button>
     <p class="small">Já tem conta? <a href="login.html">Entrar</a></p>
   </div>
 
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
   <script>
+    Auth.redirectIfAuthed('mercado.html');
+
     function doRegister() {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
+      var name = document.getElementById('name').value.trim();
+      var email = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value;
       if (!name || !email || !password) {
         alert('Preencha nome, e-mail e senha.');
         return;
       }
-      getUserByEmail(email).then((existing) => {
+      var em = Auth.normalizeEmail(email);
+      if (Auth.userExistsLocal(email)) {
+        alert('Este e-mail já está cadastrado. Faça login.');
+        return;
+      }
+      getUserByEmail(em).then(function (existing) {
         if (existing) {
           alert('Este e-mail já está cadastrado. Faça login.');
           return;
         }
-        addUser({ name, email, password }).then(() => {
-          const users = JSON.parse(localStorage.getItem('users')) || [];
-          if (!users.some((u) => u.email === email)) {
-            users.push({ name, email, password });
-            localStorage.setItem('users', JSON.stringify(users));
-          }
-          setLoginSession(email, password);
-          window.location.href = 'mercado.html';
-        }).catch((err) => {
-          console.error(err);
-          alert('Erro ao cadastrar. Tente novamente.');
-        });
-      }).catch((err) => {
+        return addUser({ name: name, email: em, password: password });
+      }).then(function (step) {
+        if (step === undefined) return;
+        Auth.addUserLocal({ name: name, email: em, password: password });
+        Auth.setSessionAfterRegister(name, em, password);
+        window.location.href = 'mercado.html';
+      }).catch(function (err) {
         console.error(err);
-        alert('Falha ao acessar o banco de dados.');
+        alert('Erro ao cadastrar. Tente novamente.');
       });
     }
   </script>

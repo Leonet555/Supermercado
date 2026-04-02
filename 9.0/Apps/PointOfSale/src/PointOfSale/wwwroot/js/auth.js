@@ -1,29 +1,181 @@
-const SITE_OWNER_EMAIL = 'adm@mercado.com';
-const SITE_OWNER_PASSWORD = '12345678';
+/**
+ * Autenticação do Mercado — sessão em localStorage + lista de utilizadores.
+ * Dono: adm@mercado.com / 12345678
+ */
+(function (global) {
+  var OWNER_EMAIL = 'adm@mercado.com';
+  var OWNER_PASSWORD = '12345678';
+  var KEY_USERS = 'users';
+  var KEY_SESSION = 'mercado_auth_session';
 
-function isSiteOwnerCredentials(email, password) {
-  return (
-    String(email).trim().toLowerCase() === SITE_OWNER_EMAIL &&
-    password === SITE_OWNER_PASSWORD
-  );
-}
+  function normalizeEmail(e) {
+    return String(e || '').trim().toLowerCase();
+  }
 
-/** Chamar após login ou registro bem-sucedido (define se é dono pela combinação e-mail/senha). */
-function setLoginSession(email, password) {
-  const emailNorm = String(email).trim();
-  localStorage.setItem('loggedInUser', emailNorm);
-  if (isSiteOwnerCredentials(emailNorm, password)) {
-    localStorage.setItem('isSiteOwner', '1');
-  } else {
+  function loadUsers() {
+    try {
+      var j = localStorage.getItem(KEY_USERS);
+      return j ? JSON.parse(j) : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem(KEY_USERS, JSON.stringify(users));
+  }
+
+  function isOwnerCredentials(email, password) {
+    return normalizeEmail(email) === normalizeEmail(OWNER_EMAIL) && password === OWNER_PASSWORD;
+  }
+
+  function migrateLegacySession() {
+    var legacyEmail = localStorage.getItem('loggedInUser');
+    if (!legacyEmail) return null;
+    var em = normalizeEmail(legacyEmail);
+    var users = loadUsers();
+    var u = null;
+    for (var i = 0; i < users.length; i++) {
+      if (normalizeEmail(users[i].email) === em) {
+        u = users[i];
+        break;
+      }
+    }
+    var isOwner = localStorage.getItem('isSiteOwner') === '1';
+    var session = { email: em, name: u && u.name ? u.name : '', isOwner: isOwner };
+    setSession(session);
+    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('isSiteOwner');
+    return session;
+  }
+
+  function getSession() {
+    try {
+      var raw = localStorage.getItem(KEY_SESSION);
+      if (raw) {
+        var s = JSON.parse(raw);
+        if (s && s.email) return s;
+      }
+    } catch (e) {}
+    return migrateLegacySession();
+  }
+
+  function setSession(session) {
+    localStorage.setItem(KEY_SESSION, JSON.stringify(session));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(KEY_SESSION);
+    localStorage.removeItem('loggedInUser');
     localStorage.removeItem('isSiteOwner');
   }
-}
 
-function clearLoginSession() {
-  localStorage.removeItem('loggedInUser');
-  localStorage.removeItem('isSiteOwner');
-}
+  /**
+   * @returns {{ ok: boolean, message?: string }}
+   */
+  function attemptLogin(email, password) {
+    var em = normalizeEmail(email);
+    var pw = String(password);
+    if (!em || !pw) {
+      return { ok: false, message: 'Preencha e-mail e senha.' };
+    }
+    if (isOwnerCredentials(em, pw)) {
+      setSession({ email: em, name: 'Administrador', isOwner: true });
+      return { ok: true };
+    }
+    var users = loadUsers();
+    var user = null;
+    for (var j = 0; j < users.length; j++) {
+      if (normalizeEmail(users[j].email) === em && users[j].password === pw) {
+        user = users[j];
+        break;
+      }
+    }
+    if (!user) {
+      return { ok: false, message: 'E-mail ou senha incorretos.' };
+    }
+    setSession({
+      email: em,
+      name: user.name || '',
+      isOwner: false
+    });
+    return { ok: true };
+  }
 
-function isSiteOwnerSession() {
-  return localStorage.getItem('isSiteOwner') === '1';
-}
+  function logout() {
+    clearSession();
+  }
+
+  function isLoggedIn() {
+    return !!getSession();
+  }
+
+  function requireAuth(redirectUrl) {
+    if (!getSession()) {
+      window.location.href = redirectUrl || 'index.html';
+    }
+  }
+
+  function redirectIfAuthed(targetUrl) {
+    if (getSession()) {
+      window.location.href = targetUrl || 'mercado.html';
+    }
+  }
+
+  function isSiteOwnerSession() {
+    var s = getSession();
+    return !!(s && s.isOwner);
+  }
+
+  function getUserLabel() {
+    var s = getSession();
+    if (!s) return '';
+    if (s.isOwner) return '👑 Dono do site';
+    if (s.name) return 'Olá, ' + s.name + '!';
+    return 'Olá, ' + s.email + '!';
+  }
+
+  function userExistsLocal(email) {
+    var em = normalizeEmail(email);
+    var users = loadUsers();
+    for (var i = 0; i < users.length; i++) {
+      if (normalizeEmail(users[i].email) === em) return true;
+    }
+    return false;
+  }
+
+  function addUserLocal(user) {
+    var users = loadUsers();
+    users.push({
+      name: user.name || '',
+      email: normalizeEmail(user.email),
+      password: user.password
+    });
+    saveUsers(users);
+  }
+
+  function setSessionAfterRegister(name, email, password) {
+    var em = normalizeEmail(email);
+    setSession({
+      email: em,
+      name: name || '',
+      isOwner: isOwnerCredentials(em, password)
+    });
+  }
+
+  global.Auth = {
+    attemptLogin: attemptLogin,
+    logout: logout,
+    getSession: getSession,
+    isLoggedIn: isLoggedIn,
+    requireAuth: requireAuth,
+    redirectIfAuthed: redirectIfAuthed,
+    isSiteOwnerSession: isSiteOwnerSession,
+    getUserLabel: getUserLabel,
+    userExistsLocal: userExistsLocal,
+    addUserLocal: addUserLocal,
+    setSessionAfterRegister: setSessionAfterRegister,
+    normalizeEmail: normalizeEmail,
+    isOwnerCredentials: isOwnerCredentials
+  };
+})(window);
