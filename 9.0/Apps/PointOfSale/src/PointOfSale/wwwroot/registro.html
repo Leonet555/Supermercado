@@ -58,7 +58,12 @@
           return;
         }
         addUser({ name, email, password }).then(() => {
-          alert('Registro concluído! Bem-vindo ao mercado.');
+          const users = JSON.parse(localStorage.getItem('users')) || [];
+          if (!users.some((u) => u.email === email)) {
+            users.push({ name, email, password });
+            localStorage.setItem('users', JSON.stringify(users));
+          }
+          localStorage.setItem('loggedInUser', email);
           window.location.href = 'mercado.html';
         }).catch((err) => {
           console.error(err);
