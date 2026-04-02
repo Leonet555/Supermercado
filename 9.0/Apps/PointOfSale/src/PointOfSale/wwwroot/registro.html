@@ -43,6 +43,7 @@
   </div>
 
   <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
   <script>
     function doRegister() {
       const name = document.getElementById('name').value.trim();
@@ -63,7 +64,7 @@
             users.push({ name, email, password });
             localStorage.setItem('users', JSON.stringify(users));
           }
-          localStorage.setItem('loggedInUser', email);
+          setLoginSession(email, password);
           window.location.href = 'mercado.html';
         }).catch((err) => {
           console.error(err);
