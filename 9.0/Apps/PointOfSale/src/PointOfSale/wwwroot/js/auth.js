@@ -25,6 +25,20 @@
     localStorage.setItem(KEY_USERS, JSON.stringify(users));
   }
 
+  function updateUserNameInStore(email, name) {
+    var em = normalizeEmail(email);
+    var trimmed = String(name || '').trim();
+    if (!trimmed) return;
+    var users = loadUsers();
+    for (var i = 0; i < users.length; i++) {
+      if (normalizeEmail(users[i].email) === em) {
+        users[i].name = trimmed;
+        saveUsers(users);
+        return;
+      }
+    }
+  }
+
   function isOwnerCredentials(email, password) {
     return normalizeEmail(email) === normalizeEmail(OWNER_EMAIL) && password === OWNER_PASSWORD;
   }
@@ -71,16 +85,22 @@
   }
 
   /**
+   * @param {string} [optionalName] — se preenchido, atualiza o nome na sessão (e na lista local, para utilizadores normais).
    * @returns {{ ok: boolean, message?: string }}
    */
-  function attemptLogin(email, password) {
+  function attemptLogin(email, password, optionalName) {
     var em = normalizeEmail(email);
     var pw = String(password);
+    var nameInput = String(optionalName || '').trim();
     if (!em || !pw) {
       return { ok: false, message: 'Preencha e-mail e senha.' };
     }
     if (isOwnerCredentials(em, pw)) {
-      setSession({ email: em, name: 'Administrador', isOwner: true });
+      setSession({
+        email: em,
+        name: nameInput || 'Administrador',
+        isOwner: true
+      });
       return { ok: true };
     }
     var users = loadUsers();
@@ -94,9 +114,13 @@
     if (!user) {
       return { ok: false, message: 'E-mail ou senha incorretos.' };
     }
+    var displayName = nameInput || user.name || '';
+    if (nameInput) {
+      updateUserNameInStore(em, nameInput);
+    }
     setSession({
       email: em,
-      name: user.name || '',
+      name: displayName,
       isOwner: false
     });
     return { ok: true };
