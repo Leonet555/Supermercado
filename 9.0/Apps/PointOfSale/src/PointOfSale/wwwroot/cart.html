@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho - Mercado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: #FFD700;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .back-btn {
+      background: #2ecc71;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .back-btn:hover {
+      background: #27ae60;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+
+    .item-price {
+      color: #27ae60;
+      font-size: 16px;
+    }
+
+    .remove-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover {
+      background: #c0392b;
+    }
+
+    .total-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #eee;
+      text-align: right;
+    }
+
+    .total-price {
+      font-size: 24px;
+      font-weight: bold;
+      color: #27ae60;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 40px;
+      color: #7f8c8d;
+      font-size: 18px;
+    }
+
+    .checkout-btn {
+      background: #3498db;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .checkout-btn:hover {
+      background: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🛒 Carrinho</h1>
+</header>
+
+<div class="container">
+  <button class="back-btn" onclick="window.location.href='index.html'">← Voltar aos Produtos</button>
+  
+  <div id="cart-content"></div>
+</div>
+
+<script>
+  function loadCart() {
+    const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const cartContent = document.getElementById('cart-content');
+    
+    if (cartItems.length === 0) {
+      cartContent.innerHTML = '<div class="empty-cart">Seu carrinho está vazio</div>';
+      return;
+    }
+
+    let total = 0;
+    let html = '';
+
+    cartItems.forEach((item) => {
+      html += `
+        <div class="cart-item">
+          <div class="item-info">
+            <div class="item-name">${item.nome}</div>
+            <div class="item-price">R$ ${item.preco}</div>
+          </div>
+          <button class="remove-btn" onclick="removeItem(${item.id})">Remover</button>
+        </div>
+      `;
+      total += item.preco;
+    });
+
+    html += `
+      <div class="total-section">
+        <p style="margin: 10px 0; font-size: 18px;">Total: <span class="total-price">R$ ${total.toFixed(2)}</span></p>
+        <button class="checkout-btn">💳 Finalizar Compra</button>
+      </div>
+    `;
+
+    cartContent.innerHTML = html;
+  }
+
+  function removeItem(itemId) {
+    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    cartItems = cartItems.filter(item => item.id !== itemId);
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    loadCart();
+  }
+
+  loadCart();
+</script>
+
+</body>
+</html>

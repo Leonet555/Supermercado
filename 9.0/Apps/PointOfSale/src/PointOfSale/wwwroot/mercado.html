@@ -1,0 +1,386 @@
+<script src="js/app.js"></script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mercado Online</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: #FFD700;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      position: relative;
+    }
+
+    .user-info {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .logout-btn:hover {
+      background: #c0392b;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .product {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    button {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #219150;
+    }
+
+    .cart-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #3498db;
+      padding: 10px 15px;
+      border-radius: 50px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .cart-btn:hover {
+      background: #2980b9;
+    }
+
+    .fruits-btn {
+      position: fixed;
+      top: 20px;
+      right: 150px;
+      background: #e67e22;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 50px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .fruits-btn:hover {
+      background: #d35400;
+    }
+
+    .cart-count {
+      background: #e74c3c;
+      color: white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      position: absolute;
+      top: 70px;
+      right: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="user-info" id="user-info">Olá!</div>
+  <button class="logout-btn" onclick="logout()">Sair</button>
+  <h1>🛒 Mercado</h1>
+</header>
+
+<div class="container">
+
+  <h2>Produtos</h2>
+
+  <div class="products">
+
+    <!-- Frutas -->
+    <div class="product">
+      <h3>🍎 Maçã</h3>
+      <p>R$ 5,50</p>
+      <button onclick="addToCart('Maçã', 5.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍌 Banana</h3>
+      <p>R$ 3,50</p>
+      <button onclick="addToCart('Banana', 3.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍊 Laranja</h3>
+      <p>R$ 4,00</p>
+      <button onclick="addToCart('Laranja', 4.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍓 Morango</h3>
+      <p>R$ 8,50</p>
+      <button onclick="addToCart('Morango', 8.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍉 Melancia</h3>
+      <p>R$ 15,00</p>
+      <button onclick="addToCart('Melancia', 15.00)">Adicionar</button>
+    </div>
+
+    <!-- Legumes/Verduras -->
+    <div class="product">
+      <h3>🥬 Alface</h3>
+      <p>R$ 3,00</p>
+      <button onclick="addToCart('Alface', 3.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍅 Tomate</h3>
+      <p>R$ 6,00</p>
+      <button onclick="addToCart('Tomate', 6.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🥕 Cenoura</h3>
+      <p>R$ 4,50</p>
+      <button onclick="addToCart('Cenoura', 4.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🥔 Batata</h3>
+      <p>R$ 5,00</p>
+      <button onclick="addToCart('Batata', 5.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🥦 Brócolis</h3>
+      <p>R$ 7,50</p>
+      <button onclick="addToCart('Brócolis', 7.50)">Adicionar</button>
+    </div>
+
+    <!-- Laticínios -->
+    <div class="product">
+      <h3>🥛 Leite</h3>
+      <p>R$ 6,50</p>
+      <button onclick="addToCart('Leite', 6.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🧀 Queijo</h3>
+      <p>R$ 12,00</p>
+      <button onclick="addToCart('Queijo', 12.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🥛 Iogurte</h3>
+      <p>R$ 4,50</p>
+      <button onclick="addToCart('Iogurte', 4.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🧈 Manteiga</h3>
+      <p>R$ 9,00</p>
+      <button onclick="addToCart('Manteiga', 9.00)">Adicionar</button>
+    </div>
+
+    <!-- Grãos/Alimentos Secos -->
+    <div class="product">
+      <h3>🍚 Arroz</h3>
+      <p>R$ 8,00</p>
+      <button onclick="addToCart('Arroz', 8.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🫘 Feijão</h3>
+      <p>R$ 7,50</p>
+      <button onclick="addToCart('Feijão', 7.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍝 Macarrão</h3>
+      <p>R$ 3,50</p>
+      <button onclick="addToCart('Macarrão', 3.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍞 Pão</h3>
+      <p>R$ 4,50</p>
+      <button onclick="addToCart('Pão', 4.50)">Adicionar</button>
+    </div>
+
+    <!-- Proteínas -->
+    <div class="product">
+      <h3>🍗 Peito de Frango</h3>
+      <p>R$ 25,00</p>
+      <button onclick="addToCart('Peito de Frango', 25.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🥩 Carne Bovina</h3>
+      <p>R$ 35,00</p>
+      <button onclick="addToCart('Carne Bovina', 35.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🐟 Peixe</h3>
+      <p>R$ 28,00</p>
+      <button onclick="addToCart('Peixe', 28.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🥚 Ovos (Dúzia)</h3>
+      <p>R$ 8,50</p>
+      <button onclick="addToCart('Ovos (Dúzia)', 8.50)">Adicionar</button>
+    </div>
+
+    <!-- Bebidas -->
+    <div class="product">
+      <h3>🧃 Suco</h3>
+      <p>R$ 5,50</p>
+      <button onclick="addToCart('Suco', 5.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🥤 Refrigerante</h3>
+      <p>R$ 6,00</p>
+      <button onclick="addToCart('Refrigerante', 6.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>☕ Café</h3>
+      <p>R$ 12,00</p>
+      <button onclick="addToCart('Café', 12.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍺 Cerveja</h3>
+      <p>R$ 7,50</p>
+      <button onclick="addToCart('Cerveja', 7.50)">Adicionar</button>
+    </div>
+
+    <!-- Condimentos e Outros -->
+    <div class="product">
+      <h3>🧂 Sal</h3>
+      <p>R$ 2,50</p>
+      <button onclick="addToCart('Sal', 2.50)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🫒 Azeite</h3>
+      <p>R$ 18,00</p>
+      <button onclick="addToCart('Azeite', 18.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🍯 Açúcar</h3>
+      <p>R$ 5,00</p>
+      <button onclick="addToCart('Açúcar', 5.00)">Adicionar</button>
+    </div>
+
+    <div class="product">
+      <h3>🧈 Óleo</h3>
+      <p>R$ 8,50</p>
+      <button onclick="addToCart('Óleo', 8.50)">Adicionar</button>
+    </div>
+
+  </div>
+
+</div>
+
+<button class="fruits-btn" onclick="window.location.href='frutas.html'">🍌 Frutas</button>
+<div class="cart-count" id="cart-count" style="display: none;">0</div>
+<button class="cart-btn" onclick="window.location.href='cart.html'">🛒 Carrinho</button>
+
+<script>
+  let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+
+  function updateCartCount() {
+    const countBadge = document.getElementById('cart-count');
+    if (cartItems.length > 0) {
+      countBadge.textContent = cartItems.length;
+      countBadge.style.display = 'flex';
+    } else {
+      countBadge.style.display = 'none';
+    }
+  }
+
+  function addToCart(nome, preco) {
+    const itemId = Date.now();
+    cartItems.push({id: itemId, nome: nome, preco: preco});
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    location.reload();
+  }
+
+  function logout() {
+    localStorage.removeItem('loggedInUser');
+    window.location.href = 'index.html';
+  }
+
+  function loadUserInfo() {
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Buscar nome do usuário no banco
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const user = users.find(u => u.email === loggedInUser);
+    if (user && user.name) {
+      document.getElementById('user-info').textContent = `Olá, ${user.name}!`;
+    } else {
+      document.getElementById('user-info').textContent = `Olá, ${loggedInUser}!`;
+    }
+  }
+
+  loadUserInfo();
+  updateCartCount();
+</script>
+
+</body>
+</html>
